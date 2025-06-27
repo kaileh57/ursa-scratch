@@ -10,7 +10,7 @@ N_HEAD = 12       # number of attention heads
 N_EMBD = 768      # embedding dimension
 
 # Training Configuration
-BATCH_SIZE = 32           # micro batch size - can handle larger due to 48GB VRAM
+BATCH_SIZE = 16           # micro batch size - can handle larger due to 48GB VRAM
 SEQUENCE_LENGTH = 1024    # full GPT-2 sequence length
 TOTAL_BATCH_SIZE = 524288 # 2**19, ~0.5M tokens
 GRAD_ACCUM_STEPS = None   # calculated dynamically

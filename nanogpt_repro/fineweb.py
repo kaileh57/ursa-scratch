@@ -11,8 +11,16 @@ import os
 import multiprocessing as mp
 import numpy as np
 import tiktoken
+from pathlib import Path
 from datasets import load_dataset # pip install datasets
 from tqdm import tqdm # pip install tqdm
+
+# set the HF_HOME environment variable
+cache_dir = Path("/mnt/raid0/huggingface_cache")
+cache_dir.mkdir(parents=True, exist_ok=True)
+os.environ["HF_HOME"] = str(cache_dir)
+os.environ["HF_DATASETS_CACHE"] = str(cache_dir)
+os.environ["TMPDIR"] = str(cache_dir)
 
 # ------------------------------------------
 local_dir = "edu_fineweb10B"
@@ -20,11 +28,11 @@ remote_name = "sample-10BT"
 shard_size = int(1e8) # 100M tokens per shard, total of 100 shards
 
 # create the cache the local directory if it doesn't exist yet
-DATA_CACHE_DIR = os.path.join(os.path.dirname(__file__), local_dir)
+DATA_CACHE_DIR = os.path.join("/mnt/raid0", local_dir)
 os.makedirs(DATA_CACHE_DIR, exist_ok=True)
 
 # download the dataset
-fw = load_dataset("HuggingFaceFW/fineweb-edu", name=remote_name, split="train")
+fw = load_dataset("HuggingFaceFW/fineweb-edu", name=remote_name, split="train", cache_dir=str(cache_dir))
 
 # init the tokenizer
 enc = tiktoken.get_encoding("gpt2")

@@ -101,7 +101,8 @@ def setup_optimizer(model, config, device_type):
     optimizer = model.configure_optimizers(
         weight_decay=training_config['weight_decay'],
         learning_rate=training_config['learning_rate'],
-        device_type=device_type
+        device_type=device_type,
+        master_process=True
     )
     
     print(f"✓ Optimizer configured with lr={training_config['learning_rate']:.2e}")
@@ -227,8 +228,9 @@ def main():
     # Create data loader
     B = config['training']['batch_size']
     T = config['training']['sequence_length']
-    data_loader = DataLoaderLite(B=B, T=T, process_rank=0, num_processes=1, split="train")
-    
+    data_loader = DataLoaderLite(B=B, T=T, process_rank=0, num_processes=1, split="train", data_dir="/mnt/raid0/edu_fineweb10B", master_process=True)
+    val_loader = DataLoaderLite(B=B, T=T, process_rank=0, num_processes=1, split="val", data_dir="/mnt/raid0/edu_fineweb10B", master_process=True)
+
     print("\n🏋️  Starting optimized training...")
     print(f"📊 Batch size: {B}, Sequence length: {T}")
     print(f"🔢 Total batch size: {config['training']['total_batch_size']:,} tokens")
@@ -263,6 +265,21 @@ def main():
     print(f"📈 Average throughput: {avg_tokens_per_sec:,.0f} tokens/sec")
     print(f"⏱️  Total time: {total_time:.1f} seconds")
     
+    # Save the model checkpoint
+    log_dir = "log"
+    os.makedirs(log_dir, exist_ok=True)
+    checkpoint_path = os.path.join(log_dir, "model_optimized.pt")
+    
+    # unwrap model if compiled
+    unwrapped_model = model._orig_mod if config['optimizations'].get('compile', True) else model
+    
+    checkpoint = {
+        'model': unwrapped_model.state_dict(),
+        'config': unwrapped_model.config,
+    }
+    torch.save(checkpoint, checkpoint_path)
+    print(f"✓ Model saved to {checkpoint_path}")
+    
     # Performance summary
     print(f"\n📋 Performance Summary for {gpu_type.upper()}:")
     print(f"   • Model size: {sum(p.numel() for p in model.parameters())/1e6:.1f}M parameters")
@@ -273,4 +290,4 @@ def main():
         print(f"   • GPU utilization: {torch.cuda.utilization()}%")
 
 if __name__ == "__main__":
-    main() 
+    main()

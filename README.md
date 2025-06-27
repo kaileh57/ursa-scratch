@@ -32,7 +32,7 @@ pip install transformers datasets tiktoken tqdm numpy matplotlib jupyter
 ### Verify GPU Setup
 
 ```bash
-python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}'); print(f'GPU: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else \"None\"}')"
+python3 -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}'); print(f'GPU: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else \"None\"}')"
 ```
 
 ## 🏃‍♂️ Training with Optimized Configurations
@@ -43,7 +43,7 @@ python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}'); 
 cd nanogpt_repro
 
 # Auto-detect GPU and use optimal configuration
-python train_optimized.py --gpu auto --steps 100
+python3 train_optimized.py --gpu auto --steps 100
 
 # Or specify your GPU explicitly
 python train_optimized.py --gpu rtx_a6000 --steps 100
